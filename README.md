@@ -20,11 +20,15 @@ This engine does not create keyspaces.
 
 ## Modules
 
-| Module            | Coordinates                    | Use it for                                           |
-|-------------------|--------------------------------|------------------------------------------------------|
-| `cassmiggy-core`  | `cassmiggy:cassmiggy-core`     | Plain Java; the engine and `KeyspaceMigrationRunner` |
+| Module                | Coordinates                              | Use it for                                           |
+|-----------------------|------------------------------------------|------------------------------------------------------|
+| `cassmiggy-core`     | `cassmiggy:cassmiggy-core`          | Plain Java; the engine and `KeyspaceMigrationRunner` |
+| `cassmiggy-quarkus`  | `cassmiggy:cassmiggy-quarkus`       | Quarkus CDI startup integration (runs on startup)    |
 
-A runnable demo (plain Java) lives under [`examples/`](examples/README.md).
+The adapter depends on `cassmiggy-core` transitively, so add only the one you need.
+
+Runnable demos for both usage styles (plain Java, Quarkus) live under
+[`examples/`](examples/README.md).
 
 
 ## How it works
@@ -52,7 +56,7 @@ A runnable demo (plain Java) lives under [`examples/`](examples/README.md).
 ```java
 import com.datastax.oss.driver.api.core.CqlSession;
 import cassmiggy.Config;
-import cassmiggy.model.MigrationResult;
+import cassmiggy.MigrationResult;
 import cassmiggy.SchemaMigrator;
 
 try (CqlSession session = CqlSession.builder().build()) {
@@ -111,6 +115,28 @@ KeyspaceMigrationRunner runner = KeyspaceMigrationRunner.builder()
 runner.migrateAll(List.of(
         new KeyspaceMigration("app", "cql/app"),
         new KeyspaceMigration("shared", "cql/shared")));
+```
+
+## Quarkus
+
+```xml
+<dependency>
+  <groupId>cassmiggy</groupId>
+  <artifactId>cassmiggy-quarkus</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+With a `CqlSession` available for injection (e.g. the `quarkus-cassandra-client` extension or your
+own producer), migrations run at startup. Configure in `application.properties`:
+
+```properties
+cassmiggy.enabled=true
+cassmiggy.fail-on-error=true
+cassmiggy.keyspaces[0].keyspace=app
+cassmiggy.keyspaces[0].location=cql/app
+cassmiggy.keyspaces[1].keyspace=shared
+cassmiggy.keyspaces[1].location=cql/shared
 ```
 
 ## Custom CQL parsing
