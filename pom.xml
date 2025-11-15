@@ -21,14 +21,14 @@
         <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Core dependencies -->
-        <cassandra-driver.version>4.19.0</cassandra-driver.version>
+        <cassandra-driver.version>4.19.1</cassandra-driver.version>
         <antlr.version>4.13.1</antlr.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
 
         <!-- Test dependencies -->
-        <junit.version>5.11.4</junit.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
-        <assertj.version>3.26.3</assertj.version>
+        <junit.version>5.12.2</junit.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
+        <assertj.version>3.27.3</assertj.version>
 
         <!-- Plugins -->
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
