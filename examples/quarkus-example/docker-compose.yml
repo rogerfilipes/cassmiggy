@@ -1,0 +1,32 @@
+# Self-contained Cassandra for the Quarkus example.
+#
+#   docker compose up -d          # start Cassandra and create the 'app' keyspace
+#   mvn -f .. -pl quarkus-example quarkus:dev   (from the examples dir) then: curl localhost:8080/users
+#   docker compose down           # stop and remove the container
+#
+# cassmiggy manages only its own history/lock tables, it never creates keyspaces, so the
+# one-shot 'create-keyspace' service below creates 'app' once Cassandra is healthy.
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassmiggy-quarkus-example-cassandra
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 18
+      start_period: 60s
+
+  create-keyspace:
+    image: cassandra:4.1
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - cqlsh
+      - cassandra
+      - -e
+      - "CREATE KEYSPACE IF NOT EXISTS app WITH replication = {'class':'SimpleStrategy','replication_factor':1};"
